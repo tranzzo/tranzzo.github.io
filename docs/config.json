@@ -1,5 +1,5 @@
 {
-  "date": "2025.10",
+  "date": "2026.01",
   "entries": [
     {
       "quadrant": 2,
@@ -434,13 +434,6 @@
       "label": "Feature Flags",
       "active": true,
       "moved": 0
-    },
-    {
-      "quadrant": 0,
-      "ring": 3,
-      "label": "GitHub Copilot",
-      "active": true,
-      "moved": -1
     },
     {
       "quadrant": 0,
