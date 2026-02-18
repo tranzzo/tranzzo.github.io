@@ -21,15 +21,15 @@
     min-height: 100vh;
     margin: 0;
     padding: 10px 20px;
+    font-family: Arial, Helvetica, sans-serif;
   }
   #radar {
     margin: 0 auto;
   }
   .legend {
     margin-top: 10px;
-    max-width: 1200px;
+    max-width: 1440px;
     text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
     line-height: 1.4;
   }
@@ -43,11 +43,142 @@
   .trial { color: #009eb0; }
   .assess { color: #c7ba00; }
   .hold { color: #e09b96; }
+
+  .tab-content {
+    width: 100%;
+  }
+  #tab-radar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Tabs */
+  #tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #ddd;
+    width: 100%;
+    max-width: 1440px;
+    align-items: center;
+  }
+  #tabs .logo {
+    height: 24px;
+    margin-right: auto;
+  }
+  .tab {
+    padding: 10px 24px;
+    border: none;
+    background: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab:hover {
+    color: #023DFF;
+  }
+  .tab.active {
+    color: #023DFF;
+    border-bottom-color: #023DFF;
+  }
+
+  /* Culture section */
+  #tab-culture {
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-size: 15px;
+    color: #333;
+    text-align: left;
+  }
+  .culture-section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #023DFF;
+    margin: 28px 0 14px;
+    text-align: center;
+  }
+  .culture-section-title:first-child {
+    margin-top: 10px;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 900px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+  .card {
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .card .emoji {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+  .card .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .card .card-text {
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+  }
+  /* Blue cards */
+  .card-blue {
+    background: #EEF1FF;
+    border-left: 4px solid #023DFF;
+  }
+  .card-blue .card-title { color: #023DFF; }
+  .card-blue .card-text { color: #3a3a5c; }
+  /* Orange cards */
+  .card-orange {
+    background: #FFF4EB;
+    border-left: 4px solid #FF7800;
+  }
+  .card-orange .card-title { color: #FF7800; }
+  .card-orange .card-text { color: #5c4a3a; }
+  /* Green cards */
+  .card-green {
+    background: #EEFBE9;
+    border-left: 4px solid #68E348;
+  }
+  .card-green .card-title { color: #3d8a28; }
+  .card-green .card-text { color: #3a5c3a; }
+  /* Accent card */
+  .card-accent {
+    background: #023DFF;
+    border-left: 4px solid #FF7800;
+  }
+  .card-accent .card-title { color: #fff; }
+  .card-accent .card-text { color: rgba(255,255,255,0.85); }
 </style>
 </head>
 
 <body>
 
+<div id="tabs">
+  <img class="logo" src="logo.svg" alt="Tranzzo">
+  <button class="tab active" data-tab="radar">Tech Radar</button>
+  <button class="tab" data-tab="culture">Engineering Culture</button>
+</div>
+
+<div id="tab-radar" class="tab-content">
 <svg id="radar"></svg>
 
 <script>
@@ -63,7 +194,7 @@ function loadRadar(configFile) {
     }
 
     radar_visualization({
-      title: "Tranzzo Tech Radar",
+      title: "Tech Radar",
       date: data.date,
       quadrants: [
         { name: "Techniques & Tools" },
@@ -89,15 +220,20 @@ function loadRadar(configFile) {
   });
 }
 
-fetch('./versions.json').then(function(response) {
-  return response.json();
-}).then(function(v) {
-  versions = v;
-  loadRadar(versions[0].file);
-}).catch(function(err) {
-  console.log('Error loading versions.json, falling back to config.json', err);
-  loadRadar('config.json');
-});
+var radarInitialized = false;
+function initRadar() {
+  if (radarInitialized) return;
+  radarInitialized = true;
+  fetch('./versions.json').then(function(response) {
+    return response.json();
+  }).then(function(v) {
+    versions = v;
+    loadRadar(versions[0].file);
+  }).catch(function(err) {
+    console.log('Error loading versions.json, falling back to config.json', err);
+    loadRadar('config.json');
+  });
+}
 </script>
 
 <div class="legend">
@@ -106,6 +242,115 @@ fetch('./versions.json').then(function(response) {
   <p><strong class="assess">ASSESS</strong> — Technologies that are promising and have clear potential value-add for us; technologies worth to invest some research and prototyping efforts in to see if it has impact.</p>
   <p><strong class="hold">HOLD</strong> — Technologies not recommended to be used for new projects. Technologies that we think are not (yet) worth to (further) invest in. HOLD technologies should not be used for new projects, but usually can be continued for existing projects.</p>
 </div>
+</div>
+
+<div id="tab-culture" class="tab-content" style="display:none">
+
+  <div class="culture-section-title">🔨 How We Build</div>
+  <div class="cards">
+    <div class="card card-blue">
+      <div class="emoji">📐</div>
+      <div class="card-title">API First</div>
+      <p class="card-text">We design the contract before writing a single line of code. API specs are the starting point — not an afterthought. This keeps integration boundaries clear and lets teams move in parallel without stepping on each other.</p>
+    </div>
+    <div class="card card-blue">
+      <div class="emoji">🔭</div>
+      <div class="card-title">Observable by Default</div>
+      <p class="card-text">If a service isn't visible in production, it's very hard to operate. Tracing, metrics, and structured logs ship with every service — not added later when something breaks. Observability is a core part of delivery, not an afterthought.</p>
+    </div>
+    <div class="card card-blue">
+      <div class="emoji">🌿</div>
+      <div class="card-title">GitOps</div>
+      <p class="card-text">Git is the single source of truth for both application and infrastructure state. Everything lives in Git, goes through a PR, and is applied through pipelines. Changes are auditable, reviewable, and reversible.</p>
+    </div>
+    <div class="card card-blue">
+      <div class="emoji">🔒</div>
+      <div class="card-title">Security as a Foundation</div>
+      <p class="card-text">Secret rotation, dependency scanning, and audit trails are part of the workflow — not a checklist before a release. Security works best when it's built in, not bolted on.</p>
+    </div>
+  </div>
+
+  <div class="culture-section-title">⚙️ How We Operate</div>
+  <div class="cards">
+    <div class="card card-orange">
+      <div class="emoji">👑</div>
+      <div class="card-title">Full Ownership</div>
+      <p class="card-text">The team that builds a service also runs it in production. Design, development, deployment, on-call — all theirs. This closes the feedback loop: the people making technical decisions are the same ones who feel the consequences in production.</p>
+    </div>
+    <div class="card card-orange">
+      <div class="emoji">🔍</div>
+      <div class="card-title">Proactive Monitoring</div>
+      <p class="card-text">We don't wait for merchants or users to report problems. Dedicated monitoring covers system health, conversion metrics, and individual merchant behavior around the clock. Not every alert becomes an incident — but every alert gets evaluated.</p>
+    </div>
+    <div class="card card-orange">
+      <div class="emoji">🐤</div>
+      <div class="card-title">Canary Deployments</div>
+      <p class="card-text">Changes roll out gradually, validated with real traffic at each step before expanding. Smaller blast radius, faster rollback if something goes wrong.</p>
+    </div>
+    <div class="card card-orange">
+      <div class="emoji">🚨</div>
+      <div class="card-title">Incident Response</div>
+      <p class="card-text">When something goes wrong, we have a clear structure: defined roles, automatic escalation, and a dedicated space for real-time coordination. After every significant incident, we run a blameless postmortem — looking at systems and processes, not people. Every postmortem ends with concrete action items so the same failure is much less likely to happen again.</p>
+    </div>
+  </div>
+
+  <div class="culture-section-title">🌱 How We Grow</div>
+  <div class="cards">
+    <div class="card card-green">
+      <div class="emoji">📖</div>
+      <div class="card-title">Write It Down</div>
+      <p class="card-text">Design decisions, runbooks, architectural choices — if it's not written, it tends to exist only in someone's head. We try to capture enough context so that knowledge doesn't leave with the person.</p>
+    </div>
+    <div class="card card-green">
+      <div class="emoji">🧭</div>
+      <div class="card-title">Technology Decisions</div>
+      <p class="card-text">New technologies go through a structured path: Assess → Trial → Adopt. The Tech Radar makes those decisions visible across the org — so everyone understands not just what we use, but why and at what stage.</p>
+    </div>
+    <div class="card card-green">
+      <div class="emoji">💡</div>
+      <div class="card-title">Room to Grow</div>
+      <p class="card-text">New ideas get a fair hearing — regardless of who brings them. We invest in people moving forward: engineers have a clear path toward more complex work, and internal transitions between teams happen in practice, not just on paper. Making mistakes is part of learning, not a reason to hold back.</p>
+    </div>
+    <div class="card card-green">
+      <div class="emoji">🤖</div>
+      <div class="card-title">AI as a Working Tool</div>
+      <p class="card-text">We've integrated AI into our SDLC — automated code review and coding assistants. What convinced us wasn't the hype — it was seeing engineers voluntarily adopt tools that actually made their work better. We share what works and drop what doesn't.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var tabs = document.querySelectorAll('#tabs .tab');
+  var radarContent = document.getElementById('tab-radar');
+  var cultureContent = document.getElementById('tab-culture');
+
+  function switchTab(name) {
+    tabs.forEach(function(t) {
+      t.classList.toggle('active', t.getAttribute('data-tab') === name);
+    });
+    radarContent.style.display = name === 'radar' ? '' : 'none';
+    cultureContent.style.display = name === 'culture' ? '' : 'none';
+    if (name === 'radar') initRadar();
+  }
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var name = tab.getAttribute('data-tab');
+      history.replaceState(null, '', '#' + name);
+      switchTab(name);
+    });
+  });
+
+  var hash = location.hash.replace('#', '');
+  if (hash === 'culture') {
+    switchTab('culture');
+  } else {
+    initRadar();
+  }
+})();
+</script>
 
 </body>
 </html>
