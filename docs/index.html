@@ -51,28 +51,52 @@
 <svg id="radar"></svg>
 
 <script>
-fetch('./config.json').then(function(response) {
-  return response.json();
-}).then(function(data) {
-  radar_visualization({
-    title: "Tranzzo Tech Radar",
-    date: data.date,
-    quadrants: [
-      { name: "Techniques & Tools" },
-      { name: "Platform & Infrastructure" },
-      { name: "Languages & Frameworks" },
-      { name: "Data Management" },
-    ],
-    rings: [
-      { name: "ADOPT", color: "#5ba300" },
-      { name: "TRIAL", color: "#009eb0" },
-      { name: "ASSESS", color: "#c7ba00" },
-      { name: "HOLD", color: "#e09b96" }
-    ],
-    entries: data.entries
+var versions = [];
+
+function loadRadar(configFile) {
+  fetch('./' + configFile).then(function(response) {
+    return response.json();
+  }).then(function(data) {
+    var svgEl = document.getElementById('radar');
+    while (svgEl.firstChild) {
+      svgEl.removeChild(svgEl.firstChild);
+    }
+
+    radar_visualization({
+      title: "Tranzzo Tech Radar",
+      date: data.date,
+      quadrants: [
+        { name: "Techniques & Tools" },
+        { name: "Platform & Infrastructure" },
+        { name: "Languages & Frameworks" },
+        { name: "Data Management" },
+      ],
+      rings: [
+        { name: "ADOPT", color: "#5ba300" },
+        { name: "TRIAL", color: "#009eb0" },
+        { name: "ASSESS", color: "#c7ba00" },
+        { name: "HOLD", color: "#e09b96" }
+      ],
+      entries: data.entries,
+      versions: versions,
+      currentFile: configFile,
+      onVersionChange: function(file) {
+        loadRadar(file);
+      }
+    });
+  }).catch(function(err) {
+    console.log('Error loading ' + configFile, err);
   });
+}
+
+fetch('./versions.json').then(function(response) {
+  return response.json();
+}).then(function(v) {
+  versions = v;
+  loadRadar(versions[0].file);
 }).catch(function(err) {
-  console.log('Error loading config.json', err);
+  console.log('Error loading versions.json, falling back to config.json', err);
+  loadRadar('config.json');
 });
 </script>
 

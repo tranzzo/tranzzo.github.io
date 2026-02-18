@@ -300,14 +300,40 @@ function radar_visualization(config) {
       .style("font-size", "30")
       .style("font-weight", "bold")
 
-    // date
-    radar
-      .append("text")
-      .attr("transform", translate(config.title_offset.x, config.title_offset.y + 20))
-      .text(config.date || "")
-      .style("font-family", config.font_family)
-      .style("font-size", "14")
-      .style("fill", "#999")
+    // date / version selector
+    if (config.versions && config.versions.length > 1) {
+      var fo = radar.append("foreignObject")
+        .attr("x", config.title_offset.x)
+        .attr("y", config.title_offset.y + 8)
+        .attr("width", 200)
+        .attr("height", 30);
+      var sel = fo.append("xhtml:select")
+        .style("font-family", config.font_family)
+        .style("font-size", "14px")
+        .style("color", "#333")
+        .style("border", "1px solid #ccc")
+        .style("border-radius", "4px")
+        .style("padding", "2px 4px")
+        .style("cursor", "pointer")
+        .style("background", "#fff");
+      config.versions.forEach(function(v) {
+        var opt = sel.append("xhtml:option")
+          .attr("value", v.file)
+          .text(v.label);
+        if (v.file === config.currentFile) opt.attr("selected", true);
+      });
+      sel.on("change", function() {
+        if (config.onVersionChange) config.onVersionChange(this.value);
+      });
+    } else {
+      radar
+        .append("text")
+        .attr("transform", translate(config.title_offset.x, config.title_offset.y + 20))
+        .text(config.date || "")
+        .style("font-family", config.font_family)
+        .style("font-size", "14")
+        .style("fill", "#999");
+    }
 
     // footer
     radar.append("text")
